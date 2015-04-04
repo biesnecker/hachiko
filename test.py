@@ -1,7 +1,5 @@
 import asyncio
-import threading
 from hachiko.hachiko import AIOWatchdog
-
 
 @asyncio.coroutine
 def watch_fs():
