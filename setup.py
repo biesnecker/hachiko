@@ -12,8 +12,10 @@ else:
 
 install_requires.append('watchdog')
 
+exec(open('hachiko/version.py').read())
+
 setup(name='hachiko',
-      version='0.1',
+      version=__version__,
       author='John Biesnecker',
       author_email='jbiesnecker@gmail.com',
       url='https://github.com/biesnecker/hachiko',
