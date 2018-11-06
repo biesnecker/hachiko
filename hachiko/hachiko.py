@@ -28,6 +28,11 @@ class AIOEventHandler(object):
     def on_modified(self, event): pass
 
     def dispatch(self, event):
+        if hasattr(asyncio, 'ensure_future'):
+            ensure_future = asyncio.ensure_future
+        else:  # deprecated since Python 3.4.4
+            ensure_future = getattr(asyncio, 'async')
+
         _method_map = {
             EVENT_TYPE_MODIFIED: self.on_modified,
             EVENT_TYPE_MOVED: self.on_moved,
@@ -37,7 +42,7 @@ class AIOEventHandler(object):
         handlers = [self.on_any_event, _method_map[event.event_type]]
         for handler in handlers:
             self._loop.call_soon_threadsafe(
-                asyncio.async,
+                ensure_future,
                 handler(event))
 
 
