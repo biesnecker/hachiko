@@ -48,8 +48,12 @@ class AIOEventHandler(object):
 
 class AIOWatchdog(object):
 
-    def __init__(self, path='.', recursive=True, event_handler=None):
-        self._observer = Observer()
+    def __init__(self, path='.', recursive=True, event_handler=None,
+                 observer=None):
+        if observer is None:
+            self._observer = Observer()
+        else:
+            self._observer = observer
 
         evh = event_handler or AIOEventHandler()
 
