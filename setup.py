@@ -5,7 +5,7 @@ from distutils.core import setup
 def read(filename):
     return open(os.path.join(os.path.dirname(__file__), filename)).read()
 
-if sys.version_info >= (3, 4):
+if sys.version_info >= (3, 5):
     install_requires = []
 else:
     install_requires = ['asyncio']
