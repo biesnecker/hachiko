@@ -12,10 +12,11 @@ class AIOEventHandler(object):
 
     def __init__(self, loop=None):
         self._loop = loop or asyncio.get_event_loop()
-        if hasattr(asyncio, 'ensure_future'):
+        # prefer asyncio.create_task starting from Python 3.7
+        if hasattr(asyncio, 'create_task'):
+            self._ensure_future = asyncio.create_task
+        else:
             self._ensure_future = asyncio.ensure_future
-        else:  # deprecated since Python 3.4.4
-            self._ensure_future = getattr(asyncio, 'async')
 
     @asyncio.coroutine
     def on_any_event(self, event): pass
