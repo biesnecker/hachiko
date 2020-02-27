@@ -18,20 +18,15 @@ class AIOEventHandler(object):
         else:
             self._ensure_future = asyncio.ensure_future
 
-    @asyncio.coroutine
-    def on_any_event(self, event): pass
+    async def on_any_event(self, event): pass
 
-    @asyncio.coroutine
-    def on_moved(self, event): pass
+    async def on_moved(self, event): pass
 
-    @asyncio.coroutine
-    def on_created(self, event): pass
+    async def on_created(self, event): pass
 
-    @asyncio.coroutine
-    def on_deleted(self, event): pass
+    async def on_deleted(self, event): pass
 
-    @asyncio.coroutine
-    def on_modified(self, event): pass
+    async def on_modified(self, event): pass
 
     def dispatch(self, event):
         _method_map = {
