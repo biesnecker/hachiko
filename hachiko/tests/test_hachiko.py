@@ -43,7 +43,7 @@ async def check_output_is_expected(directory, capsys):
 
 def test_hachiko_aiowatchdog(tmpdir, capsys):
     """Test hachiko AIOWatchdog watcher."""
-    WATCH_DIRECTORY = os.path.normpath(tmpdir)
+    WATCH_DIRECTORY = str(tmpdir)
     async def watch_fs():
         event_handler = SubclassEventHandler()  # hachinko style event handler
         watcher = AIOWatchdog(WATCH_DIRECTORY, event_handler=event_handler)
@@ -57,7 +57,7 @@ def test_hachiko_aiowatchdog(tmpdir, capsys):
 
 def test_hachiko_with_watchdog(tmpdir, capsys):
     """Test hachiko with a regular watchdog observer."""
-    WATCH_DIRECTORY = os.path.normpath(tmpdir)
+    WATCH_DIRECTORY = str(tmpdir)
     async def watch_fs():
         event_handler = SubclassEventHandler()  # hachinko style event handler
         observer = watchdog.observers.Observer()  # a regular watchdog observer
