@@ -101,6 +101,10 @@ win_task:
     CIRRUS_WORKING_DIR: C:\Users\ContainerAdministrator\AppData\Local\Temp\cirrus-ci-build
     PYTHON_ARCH: 64
 
+  system_script:
+    # install OpenSSL
+    - choco install -y openssl.light
+
   conda_script:
     - choco install -y miniconda3 --params="'/D:%ANACONDA_LOCATION%'"
     # https://github.com/napari/napari/pull/594#issuecomment-542475164
