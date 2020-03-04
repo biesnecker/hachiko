@@ -29,7 +29,7 @@ linux_task:
     - conda install --yes -c conda-forge setuptools
 
   install_script:
-    - python setup.py develop
+    - pip install -e .
     - pip install pytest
 
   check_script:
@@ -61,7 +61,7 @@ mac_task:
     - conda install --yes -c conda-forge setuptools
 
   install_script:
-    - python setup.py develop
+    - pip install -e .
     - pip install pytest
 
   check_script:
@@ -99,7 +99,7 @@ win_task:
     - conda install --yes -c conda-forge setuptools
 
   install_script:
-    - python setup.py develop
+    - pip install -e .
     - pip install pytest
 
   check_script:
