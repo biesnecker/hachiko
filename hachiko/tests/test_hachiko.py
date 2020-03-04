@@ -25,18 +25,18 @@ async def check_output_is_expected(directory, capsys):
     # Create file
     original_filename = os.path.join(directory, 'file.txt')
     pathlib.Path(original_filename).touch()
-    await asyncio.sleep(0.01)  # force release to stdout
+    await asyncio.sleep(0.1)  # force release to stdout
     captured = capsys.readouterr()
     assert captured.out == 'File created!\n'
     # Move file
     new_filename = os.path.join(directory, 'new_filename.txt')
     os.rename(original_filename, new_filename)
-    await asyncio.sleep(0.01)  # force release to stdout
+    await asyncio.sleep(0.1)  # force release to stdout
     captured = capsys.readouterr()
     assert captured.out == 'File moved!\n'
     # Delete file
     os.remove(new_filename)
-    await asyncio.sleep(0.01)  # force release to stdout
+    await asyncio.sleep(0.1)  # force release to stdout
     captured = capsys.readouterr()
     assert captured.out == 'File deleted!\n'
 
