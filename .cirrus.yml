@@ -25,8 +25,12 @@ linux_task:
   conda_script:
     - curl https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh > install.sh
     - bash install.sh -b -p $HOME/conda
-    - conda install -y python=$PY_VER
+    # https://github.com/napari/napari/pull/594#issuecomment-542475164
     - conda install --yes -c conda-forge setuptools
+    # conda 4.8.2 is breaking python 3.6 builds at the moment
+    - conda install -yn base conda=4.8.1
+    - conda install -y python=$PY_VER
+    - rm install.sh
 
   install_script:
     - pip install -e .
@@ -57,8 +61,12 @@ mac_task:
   conda_script:
     - curl https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh > install.sh
     - bash install.sh -b -p $HOME/conda
-    - conda install -y python=$PY_VER
+    # https://github.com/napari/napari/pull/594#issuecomment-542475164
     - conda install --yes -c conda-forge setuptools
+    # conda 4.8.2 is breaking python 3.6 builds at the moment
+    - conda install -yn base conda=4.8.1
+    - conda install -y python=$PY_VER
+    - rm install.sh
 
   install_script:
     - pip install -e .
@@ -95,8 +103,11 @@ win_task:
 
   conda_script:
     - choco install -y miniconda3 --params="'/D:%ANACONDA_LOCATION%'"
-    - conda install -y python=%PY_VER%
+    # https://github.com/napari/napari/pull/594#issuecomment-542475164
     - conda install --yes -c conda-forge setuptools
+    - conda install -yn base conda=4.8.1
+    - conda install -y python=%PY_VER%
+    - pip install setuptools-scm
 
   install_script:
     - pip install -e .
