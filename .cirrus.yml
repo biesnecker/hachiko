@@ -1,0 +1,8 @@
+container:
+  image: python:slim
+
+test_task:
+  pip_cache:
+    folder: ~/.cache/pip
+    fingerprint_script: echo $PYTHON_VERSION
+  test_script: pytest -v
