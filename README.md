@@ -1,5 +1,7 @@
 # Hachiko
 
+[![Build Status](https://api.cirrus-ci.com/github/biesnecker/hachiko.svg)](https://cirrus-ci.com/github/biesnecker/hachiko)
+
 An extremely simple asyncio-based wrapper around [Watchdog](https://github.com/gorakhargosh/watchdog).
 
 ### Example usage
