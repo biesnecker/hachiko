@@ -26,9 +26,11 @@ linux_task:
     - curl https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh > install.sh
     - bash install.sh -b -p $HOME/conda
     - conda install -y python=$PY_VER
+    - conda install --yes -c conda-forge setuptools
 
   install_script:
     - python setup.py develop
+    - pip install pytest
 
   check_script:
     - conda list
@@ -56,9 +58,11 @@ mac_task:
     - curl https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh > install.sh
     - bash install.sh -b -p $HOME/conda
     - conda install -y python=$PY_VER
+    - conda install --yes -c conda-forge setuptools
 
   install_script:
     - python setup.py develop
+    - pip install pytest
 
   check_script:
     - conda list
@@ -92,9 +96,11 @@ win_task:
   conda_script:
     - choco install -y miniconda3 --params="'/D:%ANACONDA_LOCATION%'"
     - conda install -y python=%PY_VER%
+    - conda install --yes -c conda-forge setuptools
 
   install_script:
     - python setup.py develop
+    - pip install pytest
 
   check_script:
     - conda list
