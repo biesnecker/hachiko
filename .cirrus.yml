@@ -5,4 +5,5 @@ test_task:
   pip_cache:
     folder: ~/.cache/pip
     fingerprint_script: echo $PYTHON_VERSION
+    populate_script: pip install -e . pytest
   test_script: pytest -v
