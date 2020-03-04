@@ -8,10 +8,9 @@ linux_task:
 
   env:
     matrix:
-      PY_VER: "3.5"
-      PY_VER: "3.6"
-      PY_VER: "3.7"
       PY_VER: "3.8"
+      PY_VER: "3.7"
+      PY_VER: "3.6"
 
   name: linux ${PY_VER}
 
@@ -48,10 +47,9 @@ mac_task:
 
   env:
     matrix:
-      PY_VER: "3.5"
-      PY_VER: "3.6"
-      PY_VER: "3.7"
       PY_VER: "3.8"
+      PY_VER: "3.7"
+      PY_VER: "3.6"
 
   name: macos ${PY_VER}
   osx_instance:
@@ -84,10 +82,9 @@ win_task:
 
   env:
     matrix:
-      PY_VER: "3.5"
-      PY_VER: "3.6"
-      PY_VER: "3.7"
       PY_VER: "3.8"
+      PY_VER: "3.7"
+      PY_VER: "3.6"
 
   name: windows ${PY_VER}
   windows_container:
@@ -119,6 +116,27 @@ win_task:
 
   check_script:
     - conda list
+    - python -c "import hachiko; print(hachiko.__version__)"
+
+  test_script: pytest -v
+
+
+python35_task:
+  # Python 3.5 and conda are not working well together:
+  # https://github.com/conda/conda/issues/9640
+  # so we set up a separate task with the default Python 3.5 Cirrus container.
+  auto_cancellation: true
+  name: Python 3.5 (default Cirrus CI container)
+
+  container:
+    image: python:3.5
+
+  install_script:
+    - pip install -e .
+    - pip install pytest
+
+  check_script:
+    - pip freeze
     - python -c "import hachiko; print(hachiko.__version__)"
 
   test_script: pytest -v
