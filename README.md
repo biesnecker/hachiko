@@ -2,7 +2,7 @@
 
 [![Build Status](https://api.cirrus-ci.com/github/biesnecker/hachiko.svg)](https://cirrus-ci.com/github/biesnecker/hachiko)
 
-An extremely simple asyncio-based wrapper around [Watchdog](https://github.com/gorakhargosh/watchdog).
+An extremely simple asyncio-based wrapper around [Watchdog](https://github.com/gorakhargosh/watchdog). [Get it on PyPI](https://pypi.org/project/hachiko/).
 
 ### Example usage
 
