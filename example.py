@@ -1,21 +1,7 @@
-# Hachiko
-
-[![Build Status](https://api.cirrus-ci.com/github/biesnecker/hachiko.svg)](https://cirrus-ci.com/github/biesnecker/hachiko)
-
-An extremely simple asyncio-based wrapper around [Watchdog](https://github.com/gorakhargosh/watchdog).
-
-### Example usage
-
-You need to subclass AIOEventHandler and either:
-
-1. Use it directly with a Watchdog ``Observer`` object, or;
-2. Pass it to ``AIOWatchdog`` and use it there.
-
-```python
 import asyncio
 from hachiko.hachiko import AIOWatchdog, AIOEventHandler
 
-WATCH_DIRECTORY = '/path/to/watch/directory/
+WATCH_DIRECTORY = '/path/to/watch/directory/'
 
 
 class MyEventHandler(AIOEventHandler):
@@ -41,6 +27,4 @@ async def watch_fs(watch_dir):
         await asyncio.sleep(1)
     watch.stop()
 
-
 asyncio.get_event_loop().run_until_complete(watch_fs(WATCH_DIRECTORY))
-```

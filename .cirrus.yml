@@ -1,0 +1,142 @@
+# default container
+container:
+  image: python:3.8
+
+
+linux_task:
+  auto_cancellation: true
+
+  env:
+    matrix:
+      PY_VER: "3.8"
+      PY_VER: "3.7"
+      PY_VER: "3.6"
+
+  name: linux ${PY_VER}
+
+  container:
+    image: gcc:latest
+
+  env:
+    PATH: $HOME/conda/bin:$PATH
+    DISPLAY: ":99"
+
+  conda_script:
+    - curl https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh > install.sh
+    - bash install.sh -b -p $HOME/conda
+    # https://github.com/napari/napari/pull/594#issuecomment-542475164
+    - conda install --yes -c conda-forge setuptools
+    # conda 4.8.2 is breaking python 3.6 builds at the moment
+    - conda install -yn base conda=4.8.1
+    - conda install -y python=$PY_VER
+    - rm install.sh
+
+  install_script:
+    - pip install -e .
+    - pip install pytest
+
+  check_script:
+    - conda list
+    - python -c "import hachiko; print(hachiko.__version__)"
+
+  test_script: pytest -v
+
+
+mac_task:
+  auto_cancellation: true
+
+  env:
+    matrix:
+      PY_VER: "3.8"
+      PY_VER: "3.7"
+      PY_VER: "3.6"
+
+  name: macos ${PY_VER}
+  osx_instance:
+    image: catalina-xcode
+  env:
+    PATH: $HOME/conda/bin:$PATH
+  conda_script:
+    - curl https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh > install.sh
+    - bash install.sh -b -p $HOME/conda
+    # https://github.com/napari/napari/pull/594#issuecomment-542475164
+    - conda install --yes -c conda-forge setuptools
+    # conda 4.8.2 is breaking python 3.6 builds at the moment
+    - conda install -yn base conda=4.8.1
+    - conda install -y python=$PY_VER
+    - rm install.sh
+
+  install_script:
+    - pip install -e .
+    - pip install pytest
+
+  check_script:
+    - conda list
+    - python -c "import hachiko; print(hachiko.__version__)"
+
+  test_script: pytest -v
+
+
+win_task:
+  auto_cancellation: true
+
+  env:
+    matrix:
+      PY_VER: "3.8"
+      PY_VER: "3.7"
+      PY_VER: "3.6"
+
+  name: windows ${PY_VER}
+  windows_container:
+    image: cirrusci/windowsservercore:cmake
+    os_version: 2019
+  env:
+    ANACONDA_LOCATION: $USERPROFILE\anaconda
+    PATH: $ANACONDA_LOCATION\Scripts;$ANACONDA_LOCATION;$PATH
+    # must set this to its default since it doesn't work in env variables
+    # see https://github.com/cirruslabs/cirrus-ci-docs/issues/423
+    CIRRUS_WORKING_DIR: C:\Users\ContainerAdministrator\AppData\Local\Temp\cirrus-ci-build
+    PYTHON_ARCH: 64
+
+  system_script:
+    # install OpenSSL
+    - choco install -y openssl.light
+
+  conda_script:
+    - choco install -y miniconda3 --params="'/D:%ANACONDA_LOCATION%'"
+    # https://github.com/napari/napari/pull/594#issuecomment-542475164
+    - conda install --yes -c conda-forge setuptools
+    - conda install -yn base conda=4.8.1
+    - conda install -y python=%PY_VER%
+    - pip install setuptools-scm
+
+  install_script:
+    - pip install -e .
+    - pip install pytest
+
+  check_script:
+    - conda list
+    - python -c "import hachiko; print(hachiko.__version__)"
+
+  test_script: pytest -v
+
+
+python35_task:
+  # Python 3.5 and conda are not working well together:
+  # https://github.com/conda/conda/issues/9640
+  # so we set up a separate task with the default Python 3.5 Cirrus container.
+  auto_cancellation: true
+  name: Python 3.5 (default Cirrus CI container)
+
+  container:
+    image: python:3.5
+
+  install_script:
+    - pip install -e .
+    - pip install pytest
+
+  check_script:
+    - pip freeze
+    - python -c "import hachiko; print(hachiko.__version__)"
+
+  test_script: pytest -v
