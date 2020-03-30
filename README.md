@@ -19,7 +19,7 @@ WATCH_DIRECTORY = '/path/to/watch/directory/
 
 
 class MyEventHandler(AIOEventHandler):
-    """Subcalss of asyncio-compatible event handler."""
+    """Subclass of asyncio-compatible event handler."""
     async def on_created(self, event):
         print('Created:', event.src_path)  # add your functionality here
 
