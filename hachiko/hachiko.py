@@ -5,6 +5,7 @@ EVENT_TYPE_MOVED = "moved"
 EVENT_TYPE_DELETED = "deleted"
 EVENT_TYPE_CREATED = "created"
 EVENT_TYPE_MODIFIED = "modified"
+EVENT_TYPE_CLOSED = "closed"
 
 
 class AIOEventHandler(object):
@@ -22,6 +23,7 @@ class AIOEventHandler(object):
             EVENT_TYPE_MOVED: self.on_moved,
             EVENT_TYPE_CREATED: self.on_created,
             EVENT_TYPE_DELETED: self.on_deleted,
+            EVENT_TYPE_CLOSED: self.on_closed,
         }
 
     async def on_any_event(self, event):
@@ -38,6 +40,10 @@ class AIOEventHandler(object):
 
     async def on_modified(self, event):
         pass
+
+    async def on_closed(self, event):
+        pass
+
 
     def dispatch(self, event):
         handler = self._method_map[event.event_type]
