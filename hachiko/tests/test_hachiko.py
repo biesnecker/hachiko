@@ -4,7 +4,7 @@ import pathlib
 
 import watchdog.observers
 
-from hachiko.hachiko import AIOWatchdog, AIOEventHandler
+from hachiko import AIOWatchdog, AIOEventHandler
 
 
 class SubclassEventHandler(AIOEventHandler):
@@ -15,7 +15,11 @@ class SubclassEventHandler(AIOEventHandler):
 
     async def on_moved(self, event): print('File moved!')
 
-    async def on_created(self, event): print('File created!')
+    async def on_created(self, event): 
+        if not event.is_directory:
+            # Sometimes the event is called on both the directory and file, so
+            # we need to check if it's a file or directory and only print once.
+            print('File created!')
 
     async def on_deleted(self, event): print('File deleted!')
 
@@ -59,7 +63,7 @@ def test_hachiko_with_watchdog(tmpdir, capsys):
     """Test hachiko with a regular watchdog observer."""
     WATCH_DIRECTORY = str(tmpdir)
     async def watch_fs():
-        event_handler = SubclassEventHandler()  # hachinko style event handler
+        event_handler = SubclassEventHandler()  # hachiko style event handler
         observer = watchdog.observers.Observer()  # a regular watchdog observer
         observer.schedule(event_handler, WATCH_DIRECTORY, recursive=True)
         observer.start()
