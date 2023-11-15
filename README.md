@@ -1,6 +1,6 @@
 # Hachiko
 
-[![Build Status](https://api.cirrus-ci.com/github/biesnecker/hachiko.svg)](https://cirrus-ci.com/github/biesnecker/hachiko)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/biesnecker/hachiko/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/biesnecker/hachiko/tree/master)
 
 An extremely simple asyncio-based wrapper around [Watchdog](https://github.com/gorakhargosh/watchdog). [Get it on PyPI](https://pypi.org/project/hachiko/).
 
@@ -8,8 +8,8 @@ An extremely simple asyncio-based wrapper around [Watchdog](https://github.com/g
 
 You need to subclass AIOEventHandler and either:
 
-1. Use it directly with a Watchdog ``Observer`` object, or;
-2. Pass it to ``AIOWatchdog`` and use it there.
+1. Use it directly with a Watchdog `Observer` object, or;
+2. Pass it to `AIOWatchdog` and use it there.
 
 ```python
 import asyncio
