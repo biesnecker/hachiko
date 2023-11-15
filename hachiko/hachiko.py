@@ -6,6 +6,7 @@ EVENT_TYPE_DELETED = "deleted"
 EVENT_TYPE_CREATED = "created"
 EVENT_TYPE_MODIFIED = "modified"
 EVENT_TYPE_CLOSED = "closed"
+EVENT_TYPE_OPENED = "opened"
 
 
 class AIOEventHandler(object):
@@ -24,6 +25,7 @@ class AIOEventHandler(object):
             EVENT_TYPE_CREATED: self.on_created,
             EVENT_TYPE_DELETED: self.on_deleted,
             EVENT_TYPE_CLOSED: self.on_closed,
+            EVENT_TYPE_OPENED: self.on_opened,
         }
 
     async def on_any_event(self, event):
@@ -42,6 +44,9 @@ class AIOEventHandler(object):
         pass
 
     async def on_closed(self, event):
+        pass
+
+    async def on_opened(self, event):
         pass
 
 

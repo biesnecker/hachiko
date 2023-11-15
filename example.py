@@ -18,6 +18,12 @@ class MyEventHandler(AIOEventHandler):
     async def on_modified(self, event):
         print('Modified:', event.src_path)  # add your functionality here
 
+    async def on_closed(self, event):
+        print('Closed:', event.src_path)  # add your functionality here
+
+    async def on_opened(self, event):
+        print('Opened:', event.src_path)  # add your functionality here
+
 
 async def watch_fs(watch_dir):
     evh = MyEventHandler()
