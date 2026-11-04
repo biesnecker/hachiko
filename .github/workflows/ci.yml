@@ -26,6 +26,16 @@ jobs:
           name: dist
           path: dist/
 
+  typecheck:
+    name: Type check (mypy --strict)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.3
+      # tests/typing_usage.py uses the public API like a typed downstream
+      # project would, so broken or missing hints fail here.
+      - run: uv run --python 3.14 --with mypy mypy --strict hachiko tests/typing_usage.py
+
   test:
     name: Python ${{ matrix.python }} / ${{ matrix.os }} / newest watchdog
     runs-on: ${{ matrix.os }}

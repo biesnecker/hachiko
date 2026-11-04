@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.6.1 (2026-11-04)
+
+### Added
+
+- Type hints for the public API, with a `py.typed` marker so type checkers
+  such as mypy use them. They use `typing.Optional`-style annotations, so
+  Python 3.6 is still supported. CI now runs `mypy --strict` against a sample
+  of the public API.
+
 ## 0.6.0 (2026-11-04)
 
 ### Added

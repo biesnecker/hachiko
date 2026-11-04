@@ -13,6 +13,11 @@ process in less detail.
   than Python 3.6 in the library or tests (no `asyncio.run`,
   `asyncio.get_running_loop`, or unguarded `asyncio.create_task`), and don't
   raise either floor without the maintainer's agreement.
+- Type hints are inline and must import on Python 3.6: use `typing.Optional`,
+  `typing.Dict` etc. (not `X | None` or `dict[...]`), and quote annotations
+  that aren't subscriptable at runtime, such as `"asyncio.Future[None]"`.
+  CI runs `mypy --strict hachiko tests/typing_usage.py`; extend
+  `tests/typing_usage.py` when the public API changes.
 - `uv.lock` is deliberately not committed, so CI always tests the newest
   watchdog.
 

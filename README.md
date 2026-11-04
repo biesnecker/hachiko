@@ -12,6 +12,9 @@ pip install hachiko
 Hachiko supports Python 3.6 and newer, and watchdog 2.1.6 and newer (including
 watchdog 7). CI tests that whole range.
 
+Hachiko includes type hints, so type checkers such as mypy check your handlers
+against its API.
+
 ### Example usage
 
 You need to subclass `AIOEventHandler` and either:
