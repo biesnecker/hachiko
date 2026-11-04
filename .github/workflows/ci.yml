@@ -42,8 +42,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest]
         python: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+        # macOS runners are scarce and often queue for a long time. Python
+        # version differences are covered on Linux and Windows, so macOS only
+        # needs to exercise watchdog's FSEvents backend: newest here, oldest
+        # in watchdog-versions below.
+        include:
+          - { os: macos-latest, python: "3.14" }
     steps:
       - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v10.3.3
@@ -52,21 +58,24 @@ jobs:
   # The newest watchdog for a given Python is covered above; this pins the
   # older major versions that existing users may still be on.
   watchdog-versions:
-    name: Python ${{ matrix.pin.python }} / ${{ matrix.os }} / watchdog ${{ matrix.pin.watchdog }}
+    name: Python ${{ matrix.python }} / ${{ matrix.os }} / watchdog ${{ matrix.watchdog }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        pin:
-          - { python: "3.8", watchdog: "2.1.6" }
-          - { python: "3.8", watchdog: "3.0.0" }
-          - { python: "3.9", watchdog: "5.0.3" }
+        include:
+          - { os: ubuntu-latest, python: "3.8", watchdog: "2.1.6" }
+          - { os: ubuntu-latest, python: "3.8", watchdog: "3.0.0" }
+          - { os: ubuntu-latest, python: "3.9", watchdog: "5.0.3" }
+          - { os: windows-latest, python: "3.8", watchdog: "2.1.6" }
+          - { os: windows-latest, python: "3.8", watchdog: "3.0.0" }
+          - { os: windows-latest, python: "3.9", watchdog: "5.0.3" }
+          - { os: macos-latest, python: "3.8", watchdog: "2.1.6" }
     steps:
       - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v10.3.3
-      - run: uv venv --python ${{ matrix.pin.python }}
-      - run: uv pip install . "pytest>=7" "watchdog==${{ matrix.pin.watchdog }}"
+      - run: uv venv --python ${{ matrix.python }}
+      - run: uv pip install . "pytest>=7" "watchdog==${{ matrix.watchdog }}"
       - run: uv run --no-project pytest -v
 
   # uv can't manage Pythons this old, so use the official images and pip.
