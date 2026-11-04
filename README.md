@@ -15,7 +15,7 @@ You need to subclass AIOEventHandler and either:
 import asyncio
 from hachiko.hachiko import AIOWatchdog, AIOEventHandler
 
-WATCH_DIRECTORY = '/path/to/watch/directory/
+WATCH_DIRECTORY = '/path/to/watch/directory/'
 
 
 class MyEventHandler(AIOEventHandler):
