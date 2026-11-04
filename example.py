@@ -24,6 +24,8 @@ class MyEventHandler(AIOEventHandler):
     async def on_opened(self, event):
         print('Opened:', event.src_path)  # add your functionality here
 
+    async def on_closed_no_write(self, event):
+        print('Closed no write:', event.src_path)  # add your functionality here
 
 async def watch_fs(watch_dir):
     evh = MyEventHandler()

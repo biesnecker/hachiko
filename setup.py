@@ -17,7 +17,7 @@ setup(
     url="https://github.com/biesnecker/hachiko",
     packages=["hachiko"],
     package_dir={"hachiko": "./hachiko"},
-    install_requires=["watchdog"],
+    install_requires=["watchdog>=5.0.0"],
     description="Asyncio wrapper around watchdog.",
     license="mit",
     long_description=read("README.txt"),

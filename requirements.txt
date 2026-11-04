@@ -1,1 +1,1 @@
-watchdog
+watchdog>=5.0.0

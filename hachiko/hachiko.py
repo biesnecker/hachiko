@@ -7,7 +7,7 @@ EVENT_TYPE_CREATED = "created"
 EVENT_TYPE_MODIFIED = "modified"
 EVENT_TYPE_CLOSED = "closed"
 EVENT_TYPE_OPENED = "opened"
-
+EVENT_TYPE_CLOSED_NO_WRITE = "closed_no_write"
 
 class AIOEventHandler(object):
     """An asyncio-compatible event handler."""
@@ -26,6 +26,7 @@ class AIOEventHandler(object):
             EVENT_TYPE_DELETED: self.on_deleted,
             EVENT_TYPE_CLOSED: self.on_closed,
             EVENT_TYPE_OPENED: self.on_opened,
+            EVENT_TYPE_CLOSED_NO_WRITE: self.on_closed_no_write,
         }
 
     async def on_any_event(self, event):
@@ -49,6 +50,8 @@ class AIOEventHandler(object):
     async def on_opened(self, event):
         pass
 
+    async def on_closed_no_write(self, event):
+        pass
 
     def dispatch(self, event):
         handler = self._method_map[event.event_type]
@@ -65,7 +68,7 @@ class AIOWatchdog(object):
 
         evh = event_handler or AIOEventHandler()
 
-        self._observer.schedule(evh, path, recursive)
+        self._observer.schedule(evh, path=path, recursive=recursive)
 
     def start(self):
         self._observer.start()
