@@ -24,11 +24,8 @@ class MyEventHandler(AIOEventHandler):
 
 async def watch_fs(watch_dir):
     evh = MyEventHandler()  # create handlers inside a running event loop
-    watch = AIOWatchdog(watch_dir, event_handler=evh)
-    watch.start()
-    for _ in range(20):
-        await asyncio.sleep(1)
-    watch.stop()
+    async with AIOWatchdog(watch_dir, event_handler=evh):
+        await asyncio.sleep(20)  # events are handled while this runs
 
 
 asyncio.run(watch_fs(WATCH_DIRECTORY))

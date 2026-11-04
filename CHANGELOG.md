@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.6.0 (2026-11-04)
+
+### Added
+
+- `async with AIOWatchdog(...)` starts watching on entry and stops on exit.
+- `await AIOWatchdog.astop()` stops watching without blocking the event loop
+  while watchdog's thread shuts down. `stop()` is unchanged.
+- Extra keyword arguments to `AIOWatchdog` are passed to watchdog's
+  `Observer.schedule()`, so options such as `event_filter` (watchdog 4+) and
+  `follow_symlink` (watchdog 7+) work without building an observer yourself.
+
+### Changed
+
+- The README documents watching a single file (watchdog 7+) and using
+  `FSEventsObserver(latency=...)` to merge repeated events on macOS.
+- Still supports Python >= 3.6 and watchdog >= 2.1.6.
+
 ## 0.5.0 (2026-11-04)
 
 ### Fixed
