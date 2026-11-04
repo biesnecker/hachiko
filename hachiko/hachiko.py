@@ -78,7 +78,9 @@ class AIOEventHandler(object):
 
 
 class AIOWatchdog(object):
-    def __init__(self, path=".", recursive=True, event_handler=None, observer=None):
+    def __init__(
+        self, path=".", recursive=True, event_handler=None, observer=None, **schedule_kwargs
+    ):
         if observer is None:
             self._observer = Observer()
         else:
@@ -86,7 +88,10 @@ class AIOWatchdog(object):
 
         evh = event_handler or AIOEventHandler()
 
-        self._observer.schedule(evh, path=path, recursive=recursive)
+        # Extra keyword arguments (e.g. event_filter, follow_symlink) go
+        # straight to watchdog, so whatever the installed version supports
+        # works here, and anything it doesn't raises TypeError.
+        self._observer.schedule(evh, path=path, recursive=recursive, **schedule_kwargs)
 
     def start(self):
         self._observer.start()
@@ -94,3 +99,15 @@ class AIOWatchdog(object):
     def stop(self):
         self._observer.stop()
         self._observer.join()
+
+    async def astop(self):
+        """Like stop(), but waits for the observer thread without blocking the event loop."""
+        self._observer.stop()
+        await asyncio.get_event_loop().run_in_executor(None, self._observer.join)
+
+    async def __aenter__(self):
+        self.start()
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb):
+        await self.astop()

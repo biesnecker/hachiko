@@ -1,4 +1,5 @@
 import asyncio
+import inspect
 import os
 import pathlib
 import threading
@@ -147,9 +148,21 @@ def test_handler_uses_explicit_loop():
 class FakeObserver(object):
     def __init__(self):
         self.scheduled = []
+        self.calls = []
+        self.join_thread = None
 
-    def schedule(self, event_handler, path, recursive=False):
-        self.scheduled.append((event_handler, path, recursive))
+    def schedule(self, event_handler, path, recursive=False, **kwargs):
+        self.scheduled.append((event_handler, path, recursive, kwargs))
+
+    def start(self):
+        self.calls.append("start")
+
+    def stop(self):
+        self.calls.append("stop")
+
+    def join(self):
+        self.calls.append("join")
+        self.join_thread = threading.current_thread()
 
 
 @pytest.mark.parametrize("recursive", [True, False])
@@ -158,7 +171,85 @@ def test_aiowatchdog_schedules_handler_on_observer(recursive):
         observer = FakeObserver()
         handler = AIOEventHandler()
         AIOWatchdog("/some/dir", recursive=recursive, event_handler=handler, observer=observer)
-        assert observer.scheduled == [(handler, "/some/dir", recursive)]
+        assert observer.scheduled == [(handler, "/some/dir", recursive, {})]
+
+    run(scenario())
+
+
+def test_aiowatchdog_passes_extra_options_to_schedule():
+    async def scenario():
+        observer = FakeObserver()
+        handler = AIOEventHandler()
+        AIOWatchdog(
+            "/some/dir",
+            event_handler=handler,
+            observer=observer,
+            event_filter=["filter"],
+            follow_symlink=True,
+        )
+        assert observer.scheduled == [
+            (handler, "/some/dir", True, {"event_filter": ["filter"], "follow_symlink": True})
+        ]
+
+    run(scenario())
+
+
+def test_aiowatchdog_rejects_options_watchdog_does_not_support(tmp_path):
+    async def scenario():
+        with pytest.raises(TypeError):
+            AIOWatchdog(str(tmp_path), not_a_watchdog_option=True)
+
+    run(scenario())
+
+
+def test_async_with_starts_and_stops_observer():
+    async def scenario():
+        observer = FakeObserver()
+        watcher = AIOWatchdog("/some/dir", observer=observer)
+        async with watcher as entered:
+            assert entered is watcher
+            assert observer.calls == ["start"]
+        assert observer.calls == ["start", "stop", "join"]
+
+    run(scenario())
+
+
+def test_async_with_stops_observer_when_body_raises():
+    class Boom(Exception):
+        pass
+
+    async def scenario():
+        observer = FakeObserver()
+        with pytest.raises(Boom):
+            async with AIOWatchdog("/some/dir", observer=observer):
+                raise Boom()
+        assert observer.calls == ["start", "stop", "join"]
+
+    run(scenario())
+
+
+def test_astop_waits_for_observer_without_blocking_event_loop():
+    async def scenario():
+        observer = FakeObserver()
+        watcher = AIOWatchdog("/some/dir", observer=observer)
+        watcher.start()
+        await watcher.astop()
+        assert observer.calls == ["start", "stop", "join"]
+        # join() blocks until watchdog's thread exits, so it must not run on
+        # the event loop's thread.
+        assert observer.join_thread is not threading.current_thread()
+
+    run(scenario())
+
+
+def test_stop_still_blocks_until_observer_joins():
+    async def scenario():
+        observer = FakeObserver()
+        watcher = AIOWatchdog("/some/dir", observer=observer)
+        watcher.start()
+        watcher.stop()
+        assert observer.calls == ["start", "stop", "join"]
+        assert observer.join_thread is threading.current_thread()
 
     run(scenario())
 
@@ -222,5 +313,44 @@ def test_handler_works_with_plain_watchdog_observer(tmp_path):
         finally:
             observer.stop()
             observer.join()
+
+    run(scenario())
+
+
+def test_async_with_aiowatchdog_reports_filesystem_events(tmp_path):
+    directory = os.path.realpath(str(tmp_path))
+
+    async def scenario():
+        handler = RecordingEventHandler()
+        async with AIOWatchdog(directory, event_handler=handler):
+            await exercise_filesystem(directory, handler)
+
+    run(scenario())
+
+
+def watchdog_supports(option):
+    params = inspect.signature(watchdog.observers.Observer().schedule).parameters
+    return option in params
+
+
+@pytest.mark.skipif(
+    not watchdog_supports("event_filter"), reason="event_filter needs watchdog 4+"
+)
+def test_event_filter_option_reaches_watchdog(tmp_path):
+    from watchdog.events import FileCreatedEvent
+
+    directory = os.path.realpath(str(tmp_path))
+
+    async def scenario():
+        handler = RecordingEventHandler()
+        async with AIOWatchdog(
+            directory, event_handler=handler, event_filter=[FileCreatedEvent]
+        ):
+            path = os.path.join(directory, "file.txt")
+            pathlib.Path(path).touch()
+            assert await wait_until(lambda: handler.calls)
+            os.remove(path)
+            await asyncio.sleep(0.5)
+        assert {ev.event_type for _, ev in handler.calls} == {"created"}
 
     run(scenario())

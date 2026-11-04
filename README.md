@@ -45,11 +45,8 @@ class MyEventHandler(AIOEventHandler):
 
 async def watch_fs(watch_dir):
     evh = MyEventHandler()  # create handlers inside a running event loop
-    watch = AIOWatchdog(watch_dir, event_handler=evh)
-    watch.start()
-    for _ in range(20):
-        await asyncio.sleep(1)
-    watch.stop()
+    async with AIOWatchdog(watch_dir, event_handler=evh):
+        await asyncio.sleep(20)  # events are handled while this runs
 
 
 asyncio.run(watch_fs(WATCH_DIRECTORY))
@@ -60,6 +57,32 @@ On Python 3.6, which has no `asyncio.run()`, use
 
 Create your handler while the event loop is running (as above), or pass the
 loop explicitly with `MyEventHandler(loop=loop)`.
+
+### Starting and stopping
+
+`async with AIOWatchdog(...)` starts watching on entry and stops on exit, even
+if the body raises. You can also manage it yourself:
+
+- `watch.start()` starts watching.
+- `await watch.astop()` stops watching and waits for watchdog's thread to
+  finish without blocking the event loop.
+- `watch.stop()` does the same but blocks the event loop while it waits.
+
+### Watch options
+
+`AIOWatchdog(path, recursive=True, event_handler=None, observer=None, **options)`
+
+- `path` can be a directory or, with watchdog 7+, a single file.
+- Any extra keyword `options` are passed to watchdog's `Observer.schedule()`,
+  so you can use whatever your installed watchdog supports. If it doesn't
+  support an option, you get a `TypeError`. Useful ones:
+  - `event_filter=[FileCreatedEvent, FileDeletedEvent]` (watchdog 4+) only
+    delivers those event classes, from `watchdog.events`.
+  - `follow_symlink=True` (watchdog 7+) follows symbolic links.
+- `observer` lets you supply your own watchdog observer, e.g.
+  `PollingObserver()` for network filesystems. On macOS with watchdog 7+,
+  `FSEventsObserver(latency=0.5)` (from `watchdog.observers.fsevents`) merges
+  rapid repeated events into one.
 
 ### Events
 
