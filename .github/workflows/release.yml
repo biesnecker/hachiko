@@ -1,0 +1,43 @@
+name: Release
+
+# Publishing a GitHub release uploads that version to PyPI. This uses PyPI
+# trusted publishing, so no API token is stored here; see CONTRIBUTING.md for
+# the one-time PyPI setup.
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.3
+      - name: Check the tag matches the package version
+        run: |
+          version=$(sed -n 's/^__version__ = "\(.*\)"$/\1/p' hachiko/version.py)
+          if [ "v${version}" != "${GITHUB_REF_NAME}" ] && [ "${version}" != "${GITHUB_REF_NAME}" ]; then
+            echo "Release tag ${GITHUB_REF_NAME} does not match package version ${version}" >&2
+            exit 1
+          fi
+      - run: uv build
+      - run: uvx twine check --strict dist/*
+      - uses: actions/upload-artifact@v7
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/hachiko/
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1

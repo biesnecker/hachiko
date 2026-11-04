@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  # Weekly run against the newest watchdog, so upstream changes that break
+  # hachiko are caught even when nothing here has changed.
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build distributions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.3
+      - run: uv build
+      - run: uvx twine check --strict dist/*
+      - uses: actions/upload-artifact@v7
+        with:
+          name: dist
+          path: dist/
+
+  test:
+    name: Python ${{ matrix.python }} / ${{ matrix.os }} / newest watchdog
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.3
+      - run: uv run --python ${{ matrix.python }} pytest -v
+
+  # The newest watchdog for a given Python is covered above; this pins the
+  # older major versions that existing users may still be on.
+  watchdog-versions:
+    name: Python ${{ matrix.pin.python }} / ${{ matrix.os }} / watchdog ${{ matrix.pin.watchdog }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        pin:
+          - { python: "3.8", watchdog: "2.1.6" }
+          - { python: "3.8", watchdog: "3.0.0" }
+          - { python: "3.9", watchdog: "5.0.3" }
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.3
+      - run: uv venv --python ${{ matrix.pin.python }}
+      - run: uv pip install . "pytest>=7" "watchdog==${{ matrix.pin.watchdog }}"
+      - run: uv run --no-project pytest -v
+
+  # uv can't manage Pythons this old, so use the official images and pip.
+  legacy-python:
+    name: Python ${{ matrix.python }} / linux / watchdog ${{ matrix.watchdog }}
+    needs: build
+    runs-on: ubuntu-latest
+    container: python:${{ matrix.python }}-slim
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { python: "3.6", watchdog: "2.1.6" }
+          - { python: "3.6", watchdog: "2.3.1" }
+          - { python: "3.7", watchdog: "3.0.0" }
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist/
+      - run: pip install dist/*.whl "pytest>=7" "watchdog==${{ matrix.watchdog }}"
+      # Plain `pytest` (not `python -m`) so the installed wheel is imported
+      # rather than the checked-out source.
+      - run: pytest -v -p no:cacheprovider

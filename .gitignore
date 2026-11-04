@@ -20,3 +20,8 @@ __pycache__/
 pyvenv.cfg
 pip-selfcheck.json
 .vscode
+.venv/
+.pytest_cache/
+# Deliberately unlocked: CI should resolve the newest watchdog so upstream
+# breakage shows up here before users report it.
+uv.lock
