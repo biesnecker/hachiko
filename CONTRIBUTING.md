@@ -13,20 +13,41 @@ weekly against the newest watchdog to catch upstream changes.
 
 ## Releasing
 
-1. Bump `__version__` in `hachiko/version.py` and move the `CHANGELOG.md`
-   entries under the new version.
-2. Merge to `master` and wait for CI to pass.
-3. Create a GitHub release with tag `vX.Y.Z` (matching the version). The
-   release workflow builds and uploads it to PyPI.
+1. Bump `__version__` in `hachiko/version.py`.
+2. In `CHANGELOG.md`, change that version's heading from `(unreleased)` to
+   the release date, e.g. `## 1.2.3 (2027-01-31)`.
+3. Merge to `master`.
+4. Tag that commit and push the tag:
 
-### One-time PyPI setup
+   ```
+   git tag v1.2.3
+   git push origin v1.2.3
+   ```
 
-The release workflow uses
-[trusted publishing](https://docs.pypi.org/trusted-publishers/), so there is no
-API token to manage. Before the first release, add a publisher on
-<https://pypi.org/manage/project/hachiko/settings/publishing/> with:
+The release workflow (`.github/workflows/release.yml`) then:
+
+- checks the tag matches the version, is on `master`, and has a dated
+  changelog entry;
+- runs the full CI matrix on the tagged commit;
+- publishes the built distributions to PyPI;
+- creates the GitHub release, using the changelog section as its notes.
+
+Nothing is published if any check or test fails. Fix the problem, delete the
+tag (`git push --delete origin v1.2.3 && git tag -d v1.2.3`) and tag again.
+Once a version is on PyPI it can't be re-uploaded, so a broken release needs
+a new version number.
+
+### PyPI setup
+
+The workflow uses
+[trusted publishing](https://docs.pypi.org/trusted-publishers/), so there is
+no API token to manage. PyPI is configured to trust:
 
 - Owner: `biesnecker`
 - Repository: `hachiko`
 - Workflow: `release.yml`
 - Environment: `pypi`
+
+The `pypi` environment in the repository settings only allows deployments from
+`v*` tags. If the workflow file or environment is renamed, update the
+publisher at <https://pypi.org/manage/project/hachiko/settings/publishing/>.
