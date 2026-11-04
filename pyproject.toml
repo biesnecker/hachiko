@@ -1,0 +1,50 @@
+[project]
+name = "hachiko"
+dynamic = ["version"]
+description = "An extremely simple asyncio-compatible wrapper around Watchdog."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "John Biesnecker", email = "jbiesnecker@gmail.com" }]
+requires-python = ">=3.6"
+# Keep the floor at what hachiko 0.4.0 shipped against; see CHANGELOG.md.
+dependencies = ["watchdog>=2.1.6"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Framework :: AsyncIO",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: System :: Filesystems",
+]
+
+[project.urls]
+Homepage = "https://github.com/biesnecker/hachiko"
+Issues = "https://github.com/biesnecker/hachiko/issues"
+Changelog = "https://github.com/biesnecker/hachiko/blob/master/CHANGELOG.md"
+
+[dependency-groups]
+dev = ["pytest>=7.0"]
+
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "hachiko/version.py"
+
+[tool.hatch.build.targets.sdist]
+include = ["hachiko", "tests", "example.py", "CHANGELOG.md", "CONTRIBUTING.md"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

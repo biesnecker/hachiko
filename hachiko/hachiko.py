@@ -8,6 +8,8 @@ EVENT_TYPE_MODIFIED = "modified"
 EVENT_TYPE_CLOSED = "closed"
 EVENT_TYPE_OPENED = "opened"
 EVENT_TYPE_CLOSED_NO_WRITE = "closed_no_write"
+EVENT_TYPE_ATTRIB = "attrib"
+
 
 class AIOEventHandler(object):
     """An asyncio-compatible event handler."""
@@ -19,6 +21,9 @@ class AIOEventHandler(object):
             self._ensure_future = asyncio.create_task
         else:
             self._ensure_future = asyncio.ensure_future
+        # The event loop only keeps weak references to tasks, so hold on to
+        # them here until they finish or they may be garbage collected.
+        self._tasks = set()
         self._method_map = {
             EVENT_TYPE_MODIFIED: self.on_modified,
             EVENT_TYPE_MOVED: self.on_moved,
@@ -27,6 +32,7 @@ class AIOEventHandler(object):
             EVENT_TYPE_CLOSED: self.on_closed,
             EVENT_TYPE_OPENED: self.on_opened,
             EVENT_TYPE_CLOSED_NO_WRITE: self.on_closed_no_write,
+            EVENT_TYPE_ATTRIB: self.on_attrib,
         }
 
     async def on_any_event(self, event):
@@ -53,10 +59,22 @@ class AIOEventHandler(object):
     async def on_closed_no_write(self, event):
         pass
 
+    async def on_attrib(self, event):
+        pass
+
     def dispatch(self, event):
-        handler = self._method_map[event.event_type]
-        self._loop.call_soon_threadsafe(self._ensure_future, self.on_any_event(event))
-        self._loop.call_soon_threadsafe(self._ensure_future, handler(event))
+        # Called from watchdog's observer thread. Event types this class
+        # doesn't know about (e.g. ones added in a newer watchdog) still go
+        # to on_any_event rather than raising and killing that thread.
+        self._loop.call_soon_threadsafe(self._spawn, self.on_any_event(event))
+        handler = self._method_map.get(event.event_type)
+        if handler is not None:
+            self._loop.call_soon_threadsafe(self._spawn, handler(event))
+
+    def _spawn(self, coro):
+        task = self._ensure_future(coro)
+        self._tasks.add(task)
+        task.add_done_callback(self._tasks.discard)
 
 
 class AIOWatchdog(object):
