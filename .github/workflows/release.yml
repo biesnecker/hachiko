@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.3.3
       - name: Check the tag matches the package version
         run: |
           version=$(sed -n 's/^__version__ = "\(.*\)"$/\1/p' hachiko/version.py)

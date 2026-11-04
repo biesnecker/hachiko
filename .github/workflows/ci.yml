@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.3.3
       - run: uv build
       - run: uvx twine check --strict dist/*
       - uses: actions/upload-artifact@v7
@@ -34,7 +34,7 @@ jobs:
         python: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.3.3
       - run: uv run --python ${{ matrix.python }} pytest -v
 
   # The newest watchdog for a given Python is covered above; this pins the
@@ -52,7 +52,7 @@ jobs:
           - { python: "3.9", watchdog: "5.0.3" }
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.3.3
       - run: uv venv --python ${{ matrix.pin.python }}
       - run: uv pip install . "pytest>=7" "watchdog==${{ matrix.pin.watchdog }}"
       - run: uv run --no-project pytest -v
