@@ -9,6 +9,8 @@ on:
   schedule:
     - cron: "17 6 * * 1"
   workflow_dispatch:
+  # Called by release.yml so a tag is only published after the full matrix passes.
+  workflow_call:
 
 jobs:
   build:
