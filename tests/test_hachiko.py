@@ -254,6 +254,13 @@ def test_stop_still_blocks_until_observer_joins():
     run(scenario())
 
 
+def test_package_ships_py_typed_marker():
+    import hachiko
+
+    # Without this marker, type checkers ignore hachiko's type hints.
+    assert (pathlib.Path(hachiko.__file__).parent / "py.typed").is_file()
+
+
 def test_package_exposes_version():
     import hachiko
 
